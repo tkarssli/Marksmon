@@ -4,7 +4,7 @@ import * as CONST from './consts'
 import Particle from './particle'
 
 const arrowImage = new Image();
-arrowImage.src = '../assets/arrow.png'
+arrowImage.src = './assets/arrow.png'
 
 class Arrow {
     constructor(x, y, vect) {
@@ -25,7 +25,7 @@ class Arrow {
                 hit = true
             }
         })
-        
+
         const theta = Math.atan2 (this.dy,this.dx);
        if (Math.abs(theta) < .45 && Math.round(this.y) >= innerHeight-CONST.FLOOR && this.dy > 0){
            if(this.dy > 0){

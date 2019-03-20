@@ -120,7 +120,7 @@ let targets = [];
 // targets.push(new Target(5000, 0, 1000))
 
 let myImage = new Image();
-myImage.src = '../assets/bow.png'
+myImage.src = './assets/bow.png'
 // myImage.onload = function() { drawBow();} 
 
 function drawBow(x, y) {

@@ -5,8 +5,8 @@ module.exports = {
   mode: 'development',
   entry: './src/canvas.js',
   output: {
-    path: __dirname + '/dist/',
-    filename: './js/canvas.bundle.js'
+    path: __dirname + '/',
+    filename: './canvas.bundle.js'
   },
   module: {
     rules: [
@@ -26,8 +26,8 @@ module.exports = {
     new BrowserSyncPlugin({
       host: 'localhost',
       port: 3000,
-      server: { baseDir: ['dist'] },
-      files: ['./dist/*'],
+      // server: { baseDir: ['./'] },
+      files: ['./*'],
       notify: false
     }),
     new HtmlWebpackPlugin({

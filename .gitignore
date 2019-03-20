@@ -1,3 +1,5 @@
 node_modules
 .ds_store
 dist/js/
+canvas.bundle.js
+canvas.bundle.js.map
