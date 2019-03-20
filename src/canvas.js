@@ -1,7 +1,9 @@
 import utils from './utils';
 import Arrow from './arrow'
 import Target from './target'
+import Cloud from './cloud'
 import * as CONST from './consts'
+import { inherits } from 'util';
 
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
@@ -34,6 +36,16 @@ const drag = {
     theta:0
 };
 
+const clouds = []
+const bushes = []
+
+const init = () => {
+    for (let i = 0; i < 20; i++) {
+        const rand = Math.random()
+        clouds.push(new Cloud(CONST.WORLD_X * rand, 200))
+    }
+}
+
 // Event Listeners
 addEventListener('mousemove', event => {
     mouse.x = event.clientX
@@ -62,7 +74,7 @@ addEventListener('mouseup', event => {
     drag.mousedown = false
     dragLine = drag
     delete drag.mousedown
-    arrow = new Arrow(innerWidth/2,innerHeight-FLOOR-160, dragLine)
+    arrow = new Arrow(innerWidth/10,innerHeight-FLOOR-160, dragLine)
 
     arrows.push(arrow)
 
@@ -103,9 +115,9 @@ Object.prototype.update = function() {
 let dragLine
 let arrow;
 let targets = [];
-targets.push(new Target(1500, 0, 100))
-targets.push(new Target(3000, 0, 500))
-targets.push(new Target(2500, 0, 1000))
+// targets.push(new Target(3000, 0, 100))
+// targets.push(new Target(4000, 0, 500))
+// targets.push(new Target(5000, 0, 1000))
 
 let myImage = new Image();
 myImage.src = '../assets/bow.png'
@@ -144,6 +156,7 @@ const mouseDrag = c => {
         c.strokeStyle = "black"
         c.stroke()
         c.closePath();
+        c.fillStyle= "black"
         c.fillText(Math.round(100*degs)/100, drag.x, drag.y)
         c.fillText(Math.round(100*vel)/100, x, y)
 
@@ -155,30 +168,10 @@ const mouseDrag = c => {
 
 // Animation Loop
 function animate() {
-    c.clearRect(translated.x, translated.y, canvas.width, canvas.height)
+    c.clearRect(translated.x, 0, canvas.width, canvas.height)
     requestAnimationFrame(animate)
+
     
-    let deltaX = 0
-    let deltaY = 0
-    
-    if(arrow && !arrow.landed){
-        
-        // arrow.update(c);
-        deltaX = arrow.x - lastPos.x
-        deltaY = arrow.y - lastPos.y
-        translated.x += deltaX
-        translated.y += deltaY
-        lastPos.x = arrow.x
-        lastPos.y = arrow.y
-    }
-    c.translate(-deltaX, -deltaY)
-    targets.forEach(target => target.update(c))
-    arrows.forEach(arrow => arrow.update(c, targets))
-    drawBow(innerWidth/2, innerHeight-FLOOR-200,)
-    
-    if(drag.mousedown){
-        mouseDrag(c)
-    }
      // Line 
      c.beginPath()
      c.moveTo(0, innerHeight-FLOOR)
@@ -186,9 +179,48 @@ function animate() {
      c.strokeStyle = "black"
      c.lineWidth = 1
 
+     // Ground
+     c.beginPath()
+     c.rect(0, innerHeight-FLOOR, 10000, 300)
+     c.fillStyle = 'rgba(97, 51, 21, 1)'
+     c.fill()
+     c.closePath()
+
+     // Sky
+     c.beginPath()
+     c.rect(0, 0, CONST.WORLD_X, innerHeight-FLOOR)
+     c.fillStyle = 'rgb(115, 175, 246)'
+     c.fill()
+     c.closePath()
+
+     // Clouds
+     clouds.forEach(cloud => cloud.update(c))
+
      c.stroke()
      c.closePath();
+    let deltaX = 0
+    let deltaY = 0
+    
+    if(arrow && arrow.x > innerWidth/2 && !arrow.landed){
+        
+        // arrow.update(c);
+        deltaX = arrow.x - lastPos.x
+        deltaY = arrow.y - lastPos.y
+        translated.x += deltaX
+        // translated.y += deltaY
+        lastPos.x = arrow.x
+        // lastPos.y = arrow.y
+    }
+    c.translate(-deltaX, 0)
+    targets.forEach(target => target.update(c))
+    arrows.forEach(arrow => arrow.update(c, targets))
+    drawBow(innerWidth/10, innerHeight-FLOOR-200,)
+    
+    if(drag.mousedown){
+        mouseDrag(c)
+    }
      
 }
 
+init()
 animate()
