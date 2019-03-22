@@ -44,7 +44,6 @@ class Arrow {
         } else {
             this.dx += (this.dx > 0) ? -.01 : 0
             this.dy += CONST.GRAVITY
-            console.log('?')
         }
         
         this.x += this.dx
@@ -55,7 +54,6 @@ class Arrow {
     
     setLanded(){
         if(this.landed === false){
-            console.log('setlanded')
 
             this.landed = Math.atan2 (this.dy,this.dx);
         }
@@ -125,7 +123,6 @@ class Arrow {
 
         ctx.save();
         ctx.translate(this.x, this.y );
-        console.log()
         ctx.rotate(theta);
         ctx.drawImage(arrowImage, 0, 0, w, h, 0, -h/2, w, h)
         ctx.restore();

@@ -10,6 +10,9 @@ class Target {
         this.h = 100
         this.hitBox = new CollisionBox(this.x, this.y, this.w, this.h)
         this.value = value
+
+        this.image = new Image();
+        this.src = './assets/target.png'    
     }
 
    update(ctx){

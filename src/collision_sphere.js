@@ -11,12 +11,12 @@ class CollisionSphere extends Collider{
 
     draw (ctx){
         
-        ctx.beginPath()
-        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false)
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = 'red'
-        ctx.stroke();
-        ctx.closePath();
+        // ctx.beginPath()
+        // ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false)
+        // ctx.lineWidth = 1;
+        // ctx.strokeStyle = 'red'
+        // ctx.stroke();
+        // ctx.closePath();
     }
 
 }

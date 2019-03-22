@@ -1127,7 +1127,6 @@ var Arrow = function () {
             } else {
                 this.dx += this.dx > 0 ? -.01 : 0;
                 this.dy += CONST.GRAVITY;
-                console.log('?');
             }
 
             this.x += this.dx;
@@ -1139,7 +1138,6 @@ var Arrow = function () {
         key: 'setLanded',
         value: function setLanded() {
             if (this.landed === false) {
-                console.log('setlanded');
 
                 this.landed = Math.atan2(this.dy, this.dx);
             }
@@ -1218,7 +1216,6 @@ var Arrow = function () {
 
             ctx.save();
             ctx.translate(this.x, this.y);
-            console.log();
             ctx.rotate(theta);
             ctx.drawImage(arrowImage, 0, 0, w, h, 0, -h / 2, w, h);
             ctx.restore();
@@ -1242,6 +1239,8 @@ module.exports = Arrow;
 "use strict";
 
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _utils = __webpack_require__(/*! ./utils */ "./src/utils.js");
 
 var _utils2 = _interopRequireDefault(_utils);
@@ -1258,6 +1257,10 @@ var _cloud = __webpack_require__(/*! ./cloud */ "./src/cloud.js");
 
 var _cloud2 = _interopRequireDefault(_cloud);
 
+var _sprite = __webpack_require__(/*! ./sprite */ "./src/sprite.js");
+
+var _sprite2 = _interopRequireDefault(_sprite);
+
 var _consts = __webpack_require__(/*! ./consts */ "./src/consts.js");
 
 var CONST = _interopRequireWildcard(_consts);
@@ -1268,12 +1271,16 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var canvas = document.querySelector('canvas');
 var c = canvas.getContext('2d');
 
 var translated = { x: 0, y: 0 };
 var lastPos = { x: 0, y: 0 };
 var arrows = [];
+var numArrows = 10;
+var hudX = 0;
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
@@ -1299,13 +1306,37 @@ var drag = {
 };
 
 var clouds = [];
+var trees = [];
 var bushes = [];
 
 var init = function init() {
     for (var i = 0; i < 20; i++) {
         var rand = Math.random();
-        clouds.push(new _cloud2.default(CONST.WORLD_X * rand, 200));
+        var y = 500 * rand;
+        rand = Math.random();
+
+        clouds.push(new _cloud2.default(CONST.WORLD_X * rand, y));
     }
+
+    // const {sx, sy, sw, sh , x, y, w, h } = this.options;
+
+
+    // Scenery Sprites
+    var path = './assets/foliage.png';
+    var image = new Image();
+    image.src = path;
+    var treesOptions = [{ sx: 2, sy: 101, sw: 61, sh: 139, x: 0, y: 0, w: 103, h: 236 }, { sx: 70, sy: 107, sw: 57, sh: 133, x: 0, y: 0, w: 96, h: 226 }, { sx: 135, sy: 132, sw: 48, sh: 106, x: 0, y: 0, w: 81, h: 180 }];
+    Object.assi;
+    for (var _i = 0; _i < 10; _i++) {
+        var index = Math.floor(Math.random() * treesOptions.length);
+        var to = Object.assign({}, treesOptions[index]);
+        to.x = Math.random() * CONST.WORLD_X;
+        to.y = innerHeight - CONST.FLOOR - to.h + 20;
+        var tree = new _sprite2.default(image, to);
+        trees.push(tree);
+    }
+    console.log(trees);
+    // console.log(clouds)
 };
 
 // Event Listeners
@@ -1315,32 +1346,39 @@ addEventListener('mousemove', function (event) {
 });
 
 addEventListener('mousedown', function (event) {
-    c.translate(translated.x, translated.y);
-    translated.x = 0;
-    translated.y = 0;
+    if (showMenu || won) {
+        // if event.clientX 
+        Menu.handleClick(event.clientX, event.clientY);
+    } else {
+        arrow = null;
+        c.translate(translated.x, translated.y);
+        translated.x = 0;
+        translated.y = 0;
 
-    drag.mousedown = true;
-    drag.x = event.clientX;
-    drag.y = event.clientY;
+        drag.mousedown = true;
+        drag.x = event.clientX;
+        drag.y = event.clientY;
 
-    lastPos.x = innerWidth / 2;
-    lastPos.y = innerHeight - FLOOR - 1;
-    // arrow = new Arrow(0 ,0, 0, 0)
-
-    // c.restore()
+        lastPos.x = innerWidth / 2;
+        lastPos.y = innerHeight - FLOOR - 1;
+        // arrow = new Arrow(0 ,0, 0, 0)
+        // c.restore()
+    }
 });
 
 addEventListener('mouseup', function (event) {
+    if (showMenu || won) {} else {
+        numArrows--;
+        drag.mousedown = false;
+        dragLine = drag;
+        delete drag.mousedown;
+        arrow = new _arrow2.default(innerWidth / 10, innerHeight - FLOOR - 160, dragLine);
 
-    drag.mousedown = false;
-    dragLine = drag;
-    delete drag.mousedown;
-    arrow = new _arrow2.default(innerWidth / 10, innerHeight - FLOOR - 160, dragLine);
+        arrows.push(arrow);
 
-    arrows.push(arrow);
-
-    lastPos.x = innerWidth / 2;
-    lastPos.y = innerHeight - FLOOR - 10;
+        lastPos.x = innerWidth / 2;
+        lastPos.y = innerHeight - FLOOR - 10;
+    }
 });
 
 addEventListener('resize', function () {
@@ -1348,31 +1386,11 @@ addEventListener('resize', function () {
     canvas.height = innerHeight;
 });
 
-// Objects
-function Object(x, y, radius, color) {
-    this.x = x;
-    this.y = y;
-    this.radius = radius;
-    this.color = color;
-}
-
-Object.prototype.draw = function () {
-    c.beginPath();
-    c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-    c.fillStyle = this.color;
-    c.fill();
-    c.closePath();
-};
-
-Object.prototype.update = function () {
-    this.draw();
-};
-
 // Implementation
 var dragLine = void 0;
 var arrow = void 0;
 var targets = [];
-// targets.push(new Target(3000, 0, 100))
+targets.push(new _target2.default(2000, 0, 100));
 // targets.push(new Target(4000, 0, 500))
 // targets.push(new Target(5000, 0, 1000))
 
@@ -1422,17 +1440,65 @@ var mouseDrag = function mouseDrag(c) {
     drag.theta = theta;
 };
 
+var Menu = function () {
+    function Menu() {
+        _classCallCheck(this, Menu);
+    }
+
+    _createClass(Menu, null, [{
+        key: 'handleClick',
+        value: function handleClick(x, y) {
+            if (x > innerWidth / 2 - 250 && x < innerWidth / 2 - 250 + 500 && y > innerHeight / 2 - 100 && y < innerHeight / 2) {
+                // console.log("sdsd")
+
+                setTimeout(function () {
+                    showMenu = false;
+                }, 200);
+            }
+        }
+    }, {
+        key: 'draw',
+        value: function draw(c) {
+            c.beginPath();
+            c.fillStyle = "black";
+            c.strokeStyle = 'rgba(0,0,0,1)';
+            c.font = "100px Arial";
+            c.fillText('Start Game', innerWidth / 2 - 250, innerHeight / 2, 500);
+            c.font = "30px Arial";
+            c.fillText('Click and Drag to fire an arrow', innerWidth / 2 - 225, innerHeight / 2 - 100, 500);
+            c.stroke();
+            c.closePath();
+        }
+    }]);
+
+    return Menu;
+}();
+
+var resetHud = function resetHud() {
+    console.log("reset");
+    c.translate(translated.x, translated.y);
+    translated.x = 0;
+    translated.y = 0;
+};
+
+var showMenu = true;
+var won = false;
 // Animation Loop
 function animate() {
     c.clearRect(translated.x, 0, canvas.width, canvas.height);
     requestAnimationFrame(animate);
 
+    if (showMenu) {
+        Menu.draw(c);
+    }
+
     // Line 
-    c.beginPath();
-    c.moveTo(0, innerHeight - FLOOR);
-    c.lineTo(10000, innerHeight - FLOOR);
-    c.strokeStyle = "black";
-    c.lineWidth = 1;
+    //  c.beginPath()
+    //  c.moveTo(0, innerHeight-FLOOR)
+    //  c.lineTo(10000, innerHeight-FLOOR)
+    //  c.strokeStyle = "black"
+    //  c.lineWidth = 1
+    //  c.closePath()
 
     // Ground
     c.beginPath();
@@ -1444,20 +1510,20 @@ function animate() {
     // Sky
     c.beginPath();
     c.rect(0, 0, CONST.WORLD_X, innerHeight - FLOOR);
-    c.fillStyle = 'rgb(115, 175, 246)';
+    c.fillStyle = 'rgba(115, 175, 246, .4)';
     c.fill();
     c.closePath();
 
     // Clouds
-    clouds.forEach(function (cloud) {
-        return cloud.update(c);
+    //  clouds.forEach(cloud => cloud.update(c))
+
+    // Foliage
+    trees.forEach(function (tree) {
+        return tree.draw(c);
     });
 
-    c.stroke();
-    c.closePath();
     var deltaX = 0;
     var deltaY = 0;
-
     if (arrow && arrow.x > innerWidth / 2 && !arrow.landed) {
 
         // arrow.update(c);
@@ -1467,8 +1533,34 @@ function animate() {
         // translated.y += deltaY
         lastPos.x = arrow.x;
         // lastPos.y = arrow.y
+    } else if (arrow && arrow.landed) {
+        arrow = null;
+        setTimeout(function () {
+            resetHud();
+        }, 2000);
     }
+
     c.translate(-deltaX, 0);
+
+    // HUD Text
+    c.beginPath();
+    c.fillStyle = "black";
+    c.strokeStyle = 'rgba(0,0,0,1)';
+    c.font = "30px Arial";
+
+    // Scanning Text
+
+    hudX = arrow ? Math.max(arrow.x, innerWidth / 2) : innerWidth / 2;
+    // Distance
+    c.fillText((arrow ? Math.round(arrow.x * 10) / 100 : 0.00) + ' M', hudX, 50);
+    // Score
+    c.fillText(0 + ' Points', hudX + innerWidth / 4, 50);
+    // Remaining arrows
+    c.fillText(numArrows + ' Arrows', hudX - innerWidth / 4, 50);
+
+    c.stroke();
+    c.closePath();
+
     targets.forEach(function (target) {
         return target.update(c);
     });
@@ -1527,7 +1619,23 @@ var Cloud = function (_Scene) {
     function Cloud(x, y) {
         _classCallCheck(this, Cloud);
 
-        return _possibleConstructorReturn(this, (Cloud.__proto__ || Object.getPrototypeOf(Cloud)).call(this, x, y));
+        var _this = _possibleConstructorReturn(this, (Cloud.__proto__ || Object.getPrototypeOf(Cloud)).call(this, x, y));
+
+        _this.puffs = [];
+
+        var puff = function puff(x, y) {
+            return { x: x, y: y };
+        };
+
+        for (var i = 0; i < 20; i++) {
+            var rand = Math.random();
+            var _x = _this.x + 100 * rand;
+            rand = Math.random();
+            var _y = _this.y + 100 * rand;
+            // console.log(y)
+            _this.puffs.push(puff(_x, _y));
+        }
+        return _this;
     }
 
     _createClass(Cloud, [{
@@ -1540,13 +1648,15 @@ var Cloud = function (_Scene) {
         key: 'draw',
         value: function draw(ctx) {
 
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, 30, 0, Math.PI * 2, false);
-            ctx.lineWidth = 0;
-            ctx.fillStyle = 'rgb(255,255,255)';
-            ctx.fill();
-
-            ctx.closePath();
+            this.puffs.forEach(function (puff) {
+                ctx.beginPath();
+                ctx.arc(puff.x, puff.y, 30, 0, Math.PI * 2, false);
+                ctx.fillStyle = 'rgb(255,255,255)';
+                ctx.fill();
+                ctx.lineWidth = 0;
+                ctx.closePath();
+            });
+            ctx.fillStyle = 'black';
         }
     }]);
 
@@ -1722,12 +1832,12 @@ var CollisionSphere = function (_Collider) {
         key: 'draw',
         value: function draw(ctx) {
 
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = 'red';
-            ctx.stroke();
-            ctx.closePath();
+            // ctx.beginPath()
+            // ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false)
+            // ctx.lineWidth = 1;
+            // ctx.strokeStyle = 'red'
+            // ctx.stroke();
+            // ctx.closePath();
         }
     }]);
 
@@ -1859,6 +1969,52 @@ module.exports = Scene;
 
 /***/ }),
 
+/***/ "./src/sprite.js":
+/*!***********************!*\
+  !*** ./src/sprite.js ***!
+  \***********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Sprite = function () {
+    function Sprite(image, options) {
+        _classCallCheck(this, Sprite);
+
+        this.options = options;
+        this.image = image;
+    }
+
+    _createClass(Sprite, [{
+        key: "draw",
+        value: function draw(ctx) {
+            var _options = this.options,
+                sx = _options.sx,
+                sy = _options.sy,
+                sw = _options.sw,
+                sh = _options.sh,
+                x = _options.x,
+                y = _options.y,
+                w = _options.w,
+                h = _options.h;
+
+            ctx.drawImage(this.image, sx, sy, sw, sh, x, y, w, h);
+        }
+    }]);
+
+    return Sprite;
+}();
+
+module.exports = Sprite;
+
+/***/ }),
+
 /***/ "./src/target.js":
 /*!***********************!*\
   !*** ./src/target.js ***!
@@ -1899,6 +2055,9 @@ var Target = function () {
         this.h = 100;
         this.hitBox = new _collision_box2.default(this.x, this.y, this.w, this.h);
         this.value = value;
+
+        this.image = new Image();
+        this.src = './assets/target.png';
     }
 
     _createClass(Target, [{
