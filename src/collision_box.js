@@ -12,12 +12,12 @@ class CollisionBox extends Collider{
 
     draw (ctx){
         
-        ctx.beginPath()
-        ctx.rect(this.x, this.y, this.w, this.h)
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = 'red'
-        ctx.stroke();
-        ctx.closePath();
+        // ctx.beginPath()
+        // ctx.rect(this.x, this.y, this.w, this.h)
+        // ctx.lineWidth = 1;
+        // ctx.strokeStyle = 'red'
+        // ctx.stroke();
+        // ctx.closePath();
     }
 
 }

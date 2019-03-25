@@ -1095,6 +1095,7 @@ var Arrow = function () {
         this.dy = -(vect.vel / CONST.VEL_DIV) * Math.sin(vect.theta);
         this.arrow_length = 40;
         this.landed = false;
+        this.hitValue = 0;
         this.hitBox = new _collision_sphere2.default(0, 0, 5);
         this.particles = [];
     }
@@ -1105,9 +1106,11 @@ var Arrow = function () {
             var _this = this;
 
             var hit = false;
+            this.hitValue = 0;
             targets.forEach(function (target) {
                 if (_this.targetHit(target)) {
                     hit = true;
+                    _this.hitValue += target.value;
                 }
             });
 
@@ -1122,7 +1125,6 @@ var Arrow = function () {
 
                 this.dx = this.dx / 1.2;
             } else if (this.y >= innerHeight - CONST.FLOOR || hit) {
-
                 this.setLanded();
             } else {
                 this.dx += this.dx > 0 ? -.01 : 0;
@@ -1278,9 +1280,11 @@ var c = canvas.getContext('2d');
 
 var translated = { x: 0, y: 0 };
 var lastPos = { x: 0, y: 0 };
-var arrows = [];
-var numArrows = 10;
+var numArrows = CONST.NUM_ARROWS;
+
 var hudX = 0;
+var waiting = false;
+var mouseLock = false;
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
@@ -1304,12 +1308,25 @@ var drag = {
     vel: 0,
     theta: 0
 };
-
-var clouds = [];
-var trees = [];
-var bushes = [];
-
+// GLOBAL VARS
+// Scenery
+var clouds = void 0;
+var trees = void 0;
+var bushes = void 0;
+// Session
+var arrows = void 0;
+var points = void 0;
 var init = function init() {
+    arrows = [];
+    points = 0;
+    clouds = [];
+    trees = [];
+    bushes = [];
+    resetHud();
+
+    points = 0;
+    arrows = [];
+    numArrows = CONST.NUM_ARROWS;
     for (var i = 0; i < 20; i++) {
         var rand = Math.random();
         var y = 500 * rand;
@@ -1335,8 +1352,6 @@ var init = function init() {
         var tree = new _sprite2.default(image, to);
         trees.push(tree);
     }
-    console.log(trees);
-    // console.log(clouds)
 };
 
 // Event Listeners
@@ -1346,10 +1361,10 @@ addEventListener('mousemove', function (event) {
 });
 
 addEventListener('mousedown', function (event) {
-    if (showMenu || won) {
+    if (showMenu || over) {
         // if event.clientX 
         Menu.handleClick(event.clientX, event.clientY);
-    } else {
+    } else if (!mouseLock) {
         arrow = null;
         c.translate(translated.x, translated.y);
         translated.x = 0;
@@ -1361,13 +1376,11 @@ addEventListener('mousedown', function (event) {
 
         lastPos.x = innerWidth / 2;
         lastPos.y = innerHeight - FLOOR - 1;
-        // arrow = new Arrow(0 ,0, 0, 0)
-        // c.restore()
     }
 });
 
 addEventListener('mouseup', function (event) {
-    if (showMenu || won) {} else {
+    if (showMenu || over) {} else if (!mouseLock) {
         numArrows--;
         drag.mousedown = false;
         dragLine = drag;
@@ -1378,6 +1391,8 @@ addEventListener('mouseup', function (event) {
 
         lastPos.x = innerWidth / 2;
         lastPos.y = innerHeight - FLOOR - 10;
+        waiting = true;
+        mouseLock = true;
     }
 });
 
@@ -1390,9 +1405,9 @@ addEventListener('resize', function () {
 var dragLine = void 0;
 var arrow = void 0;
 var targets = [];
-targets.push(new _target2.default(2000, 0, 100));
-// targets.push(new Target(4000, 0, 500))
-// targets.push(new Target(5000, 0, 1000))
+targets.push(new _target2.default(1500, 0, 100));
+targets.push(new _target2.default(4000, 0, 500));
+targets.push(new _target2.default(5000, 0, 1000));
 
 var myImage = new Image();
 myImage.src = './assets/bow.png';
@@ -1452,7 +1467,12 @@ var Menu = function () {
                 // console.log("sdsd")
 
                 setTimeout(function () {
-                    showMenu = false;
+                    if (showMenu) {
+                        showMenu = false;
+                    } else if (over) {
+                        over = false;
+                        init();
+                    }
                 }, 200);
             }
         }
@@ -1469,28 +1489,48 @@ var Menu = function () {
             c.stroke();
             c.closePath();
         }
+    }, {
+        key: 'over',
+        value: function over(c) {
+            c.beginPath();
+            c.fillStyle = "black";
+            c.strokeStyle = 'rgba(0,0,0,1)';
+            c.font = "100px Arial";
+            c.fillText('Start Over', innerWidth / 2 - 250, innerHeight / 2, 500);
+            c.font = "30px Arial";
+            c.fillText('Final Score: ' + points, innerWidth / 2 - 225, innerHeight / 2 - 100, 500);
+            c.stroke();
+            c.closePath();
+        }
     }]);
 
     return Menu;
 }();
 
 var resetHud = function resetHud() {
-    console.log("reset");
     c.translate(translated.x, translated.y);
     translated.x = 0;
     translated.y = 0;
+    hudX = innerWidth / 2;
+    mouseLock = false;
 };
 
 var showMenu = true;
-var won = false;
+var over = false;
 // Animation Loop
 function animate() {
     c.clearRect(translated.x, 0, canvas.width, canvas.height);
     requestAnimationFrame(animate);
-
-    if (showMenu) {
-        Menu.draw(c);
+    if (numArrows <= 0) {
+        over = true;
+        Menu.over(c);
     }
+
+    if (showMenu && numArrows > 0) {
+        Menu.draw(c);
+    } else if (showMenu) {}
+    // showMenu = true;
+
 
     // Line 
     //  c.beginPath()
@@ -1502,7 +1542,7 @@ function animate() {
 
     // Ground
     c.beginPath();
-    c.rect(0, innerHeight - FLOOR, 10000, 300);
+    c.rect(0, innerHeight - FLOOR, CONST.WORLD_X, 300);
     c.fillStyle = 'rgba(97, 51, 21, 1)';
     c.fill();
     c.closePath();
@@ -1524,7 +1564,7 @@ function animate() {
 
     var deltaX = 0;
     var deltaY = 0;
-    if (arrow && arrow.x > innerWidth / 2 && !arrow.landed) {
+    if (arrow && arrow.x > innerWidth / 2 && arrow.landed === false) {
 
         // arrow.update(c);
         deltaX = arrow.x - lastPos.x;
@@ -1533,11 +1573,14 @@ function animate() {
         // translated.y += deltaY
         lastPos.x = arrow.x;
         // lastPos.y = arrow.y
-    } else if (arrow && arrow.landed) {
-        arrow = null;
+    } else if (arrow && arrow.landed !== false) {
         setTimeout(function () {
             resetHud();
         }, 2000);
+
+        hudX = arrow.x;
+        waiting = false;
+        arrow = null;
     }
 
     c.translate(-deltaX, 0);
@@ -1549,23 +1592,27 @@ function animate() {
     c.font = "30px Arial";
 
     // Scanning Text
-
-    hudX = arrow ? Math.max(arrow.x, innerWidth / 2) : innerWidth / 2;
+    console.log('Waiting: ' + waiting + ', HudX:' + hudX);
+    if (waiting) {
+        hudX = arrow ? Math.max(arrow.x, innerWidth / 2) : innerWidth / 2;
+    }
     // Distance
     c.fillText((arrow ? Math.round(arrow.x * 10) / 100 : 0.00) + ' M', hudX, 50);
     // Score
-    c.fillText(0 + ' Points', hudX + innerWidth / 4, 50);
+    c.fillText(points + ' Points', hudX + innerWidth / 4, 50);
     // Remaining arrows
     c.fillText(numArrows + ' Arrows', hudX - innerWidth / 4, 50);
 
     c.stroke();
     c.closePath();
 
+    points = 0;
     targets.forEach(function (target) {
-        return target.update(c);
+        target.update(c);
     });
     arrows.forEach(function (arrow) {
-        return arrow.update(c, targets);
+        points += arrow.hitValue;
+        arrow.update(c, targets);
     });
     drawBow(innerWidth / 10, innerHeight - FLOOR - 200);
 
@@ -1632,7 +1679,6 @@ var Cloud = function (_Scene) {
             var _x = _this.x + 100 * rand;
             rand = Math.random();
             var _y = _this.y + 100 * rand;
-            // console.log(y)
             _this.puffs.push(puff(_x, _y));
         }
         return _this;
@@ -1766,12 +1812,12 @@ var CollisionBox = function (_Collider) {
         key: 'draw',
         value: function draw(ctx) {
 
-            ctx.beginPath();
-            ctx.rect(this.x, this.y, this.w, this.h);
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = 'red';
-            ctx.stroke();
-            ctx.closePath();
+            // ctx.beginPath()
+            // ctx.rect(this.x, this.y, this.w, this.h)
+            // ctx.lineWidth = 1;
+            // ctx.strokeStyle = 'red'
+            // ctx.stroke();
+            // ctx.closePath();
         }
     }]);
 
@@ -1861,12 +1907,13 @@ module.exports = CollisionSphere;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var WORLD_X = exports.WORLD_X = 10000;
+var WORLD_X = exports.WORLD_X = 100000;
 var FLOOR = exports.FLOOR = innerHeight / 4;
 var VECTOR_LENGTH = exports.VECTOR_LENGTH = 200;
-var VEL_DIV = exports.VEL_DIV = 3;
+var VEL_DIV = exports.VEL_DIV = 1.2;
 var GRAVITY = exports.GRAVITY = .2;
 var PARTICLE_LIFE = exports.PARTICLE_LIFE = 1000;
+var NUM_ARROWS = exports.NUM_ARROWS = 5;
 
 /***/ }),
 
@@ -2051,13 +2098,12 @@ var Target = function () {
 
         this.x = x;
         this.y = innerHeight - CONST.FLOOR - 20 + y;
-        this.w = 20;
-        this.h = 100;
+        this.w = 30;
+        this.h = 80;
         this.hitBox = new _collision_box2.default(this.x, this.y, this.w, this.h);
         this.value = value;
-
         this.image = new Image();
-        this.src = './assets/target.png';
+        this.image.src = './assets/target.png';
     }
 
     _createClass(Target, [{
@@ -2078,10 +2124,9 @@ var Target = function () {
         key: 'draw',
         value: function draw(ctx) {
 
-            ctx.beginPath();
-            ctx.rect(this.x, this.y, this.w, this.h);
-            ctx.stroke();
-            ctx.closePath();
+            ctx.drawImage(this.image, 282, 38, 548, 934, this.x - 40, this.y - 20, 109, 186);
+            ctx.fillStyle = "white";
+            ctx.fillText('' + Math.round(this.x * 10) / 100, this.x, this.y + 200);
         }
     }]);
 

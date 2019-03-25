@@ -14,15 +14,18 @@ class Arrow {
         this.dy = -(vect.vel/CONST.VEL_DIV) * Math.sin(vect.theta);
         this.arrow_length = 40;
         this.landed = false;
+        this.hitValue = 0;
         this.hitBox = new CollisionSphere(0 ,0 , 5);
         this.particles = [];
     }
 
    update(ctx, targets){
        let hit = false;
+       this.hitValue = 0;
         targets.forEach( target => {
             if(this.targetHit(target)){
-                hit = true
+                hit = true;
+                this.hitValue += target.value;
             }
         })
 
@@ -39,7 +42,6 @@ class Arrow {
             
             
         }else if( this.y >= innerHeight-CONST.FLOOR || hit){
-
             this.setLanded()
         } else {
             this.dx += (this.dx > 0) ? -.01 : 0

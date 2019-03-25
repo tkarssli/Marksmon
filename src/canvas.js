@@ -11,9 +11,11 @@ const c = canvas.getContext('2d')
 
 let translated = {x:0, y: 0};
 let lastPos = {x: 0, y:0 };
-let arrows = [];
-let numArrows = 10
+let numArrows = CONST.NUM_ARROWS;
+
 let hudX = 0;
+let waiting = false;
+let mouseLock = false;
 canvas.width = innerWidth
 canvas.height = innerHeight
 
@@ -38,12 +40,25 @@ const drag = {
     vel:0,
     theta:0
 };
-
-const clouds = []
-const trees = []
-const bushes = []
-
+// GLOBAL VARS
+// Scenery
+let clouds;
+let trees;
+let bushes;
+// Session
+let arrows;
+let points;
 const init = () => {
+    arrows = [];
+    points = 0;
+    clouds = []
+    trees = []
+    bushes = []
+    resetHud();
+
+    points = 0;
+    arrows =[];
+    numArrows = CONST.NUM_ARROWS;
     for (let i = 0; i < 20; i++) {
         let rand = Math.random()
         let y = 500*rand 
@@ -75,8 +90,6 @@ const init = () => {
         trees.push(tree)
 
     }
-    console.log(trees)
-    // console.log(clouds)
 }
 
 // Event Listeners
@@ -86,11 +99,11 @@ addEventListener('mousemove', event => {
 })
 
 addEventListener('mousedown', event => {
-    if (showMenu || won){
+    if (showMenu || over){
         // if event.clientX 
         Menu.handleClick(event.clientX, event.clientY)
 
-    } else {
+    } else if(!mouseLock) {
         arrow = null;
         c.translate(translated.x, translated.y)
         translated.x = 0
@@ -102,16 +115,14 @@ addEventListener('mousedown', event => {
     
         lastPos.x = innerWidth/2
         lastPos.y  = innerHeight-FLOOR-1
-        // arrow = new Arrow(0 ,0, 0, 0)
-        // c.restore()
     }
 
 })
 
 addEventListener('mouseup', event => {
-    if ( showMenu || won) {
+    if ( showMenu || over) {
 
-    } else {
+    } else if( !mouseLock) {
         numArrows--
         drag.mousedown = false
         dragLine = drag
@@ -122,6 +133,8 @@ addEventListener('mouseup', event => {
     
         lastPos.x = innerWidth/2;
         lastPos.y = innerHeight-FLOOR-10;
+        waiting= true;
+        mouseLock = true;
     }
 
 })
@@ -136,9 +149,9 @@ addEventListener('resize', () => {
 let dragLine
 let arrow;
 let targets = [];
-targets.push(new Target(2000, 0, 100))
-// targets.push(new Target(4000, 0, 500))
-// targets.push(new Target(5000, 0, 1000))
+targets.push(new Target(1500, 0, 100))
+targets.push(new Target(4000, 0, 500))
+targets.push(new Target(5000, 0, 1000))
 
 let myImage = new Image();
 myImage.src = './assets/bow.png'
@@ -195,7 +208,13 @@ class Menu{
             // console.log("sdsd")
 
             setTimeout(() => {
-                showMenu = false;
+                if( showMenu){
+                    showMenu = false;
+                } else if ( over ){
+                    over = false;
+                    init();
+                    
+                }
             }, 200)
             
         }
@@ -212,25 +231,44 @@ class Menu{
         c.closePath()
 
     }
+    static over(c) {
+        c.beginPath()
+        c.fillStyle= "black"
+        c.strokeStyle='rgba(0,0,0,1)'
+        c.font = "100px Arial";
+        c.fillText(`Start Over`, innerWidth/2-250,innerHeight/2, 500)
+        c.font = "30px Arial";
+        c.fillText(`Final Score: ${points}`, innerWidth/2-225,innerHeight/2-100, 500)
+        c.stroke()
+        c.closePath()
+
+    }
 }
 
 const resetHud = () => {
-    console.log("reset")
-            c.translate(translated.x, translated.y)
-            translated.x = 0
-            translated.y = 0
+    c.translate(translated.x, translated.y)
+    translated.x = 0
+    translated.y = 0
+    hudX = innerWidth/2;
+    mouseLock = false;
 }
 
 
 let showMenu = true;
-let won = false;
+let over = false;
 // Animation Loop
 function animate() {
     c.clearRect(translated.x, 0, canvas.width, canvas.height)
     requestAnimationFrame(animate)
+    if(numArrows <= 0){
+        over = true;
+        Menu.over(c)
+    }
 
-    if(showMenu){
+    if(showMenu && numArrows > 0){
         Menu.draw(c)
+    } else if(showMenu){
+        // showMenu = true;
     }
 
 
@@ -245,7 +283,7 @@ function animate() {
 
     // Ground
     c.beginPath()
-    c.rect(0, innerHeight-FLOOR, 10000, 300)
+    c.rect(0, innerHeight-FLOOR, CONST.WORLD_X, 300)
     c.fillStyle = 'rgba(97, 51, 21, 1)'
     c.fill()
     c.closePath()
@@ -267,7 +305,7 @@ function animate() {
     
     let deltaX = 0
     let deltaY = 0
-    if(arrow && arrow.x > innerWidth/2 && !arrow.landed){
+    if(arrow && arrow.x > innerWidth/2 && arrow.landed === false){
         
         // arrow.update(c);
         deltaX = arrow.x - lastPos.x
@@ -276,11 +314,14 @@ function animate() {
         // translated.y += deltaY
         lastPos.x = arrow.x
         // lastPos.y = arrow.y
-    } else if (arrow && arrow.landed){
-        arrow = null;
+    } else if (arrow && arrow.landed !== false){
         setTimeout(() => {
             resetHud();
         }, 2000)
+        
+        hudX = arrow.x;
+        waiting = false;
+        arrow=null;
     }
 
     c.translate(-deltaX, 0)
@@ -293,21 +334,26 @@ function animate() {
     c.font = "30px Arial";
 
     // Scanning Text
-
-    hudX = arrow ? Math.max(arrow.x, innerWidth/2) : innerWidth/2
+    console.log(`Waiting: ${waiting}, HudX:${hudX}`)
+    if (waiting){
+        hudX = arrow ? Math.max(arrow.x, innerWidth/2) : innerWidth/2
+    }
     // Distance
     c.fillText(`${arrow ? Math.round(arrow.x *10)/100 : 0.00} M`, hudX,50)
     // Score
-    c.fillText(`${0} Points`, hudX + innerWidth/4,50)
+    c.fillText(`${points} Points`, hudX + innerWidth/4,50)
     // Remaining arrows
     c.fillText(`${numArrows} Arrows`, hudX-innerWidth/4,50)
 
     c.stroke()
     c.closePath()
 
-
-    targets.forEach(target => target.update(c))
-    arrows.forEach(arrow => arrow.update(c, targets))
+    points = 0;
+    targets.forEach(target => {
+        target.update(c)})
+    arrows.forEach(arrow => {
+        points += arrow.hitValue;
+        arrow.update(c, targets)})
     drawBow(innerWidth/10, innerHeight-FLOOR-200,)
     
     if(drag.mousedown){

@@ -17,7 +17,6 @@ class Cloud extends Scene{
             const x = this.x+(100*rand)
             rand = Math.random();
             const y = this.y+(100*rand)
-            // console.log(y)
             this.puffs.push(puff(x,y))
 
         }
