@@ -1,0 +1,92 @@
+body{
+    margin:0;
+}
+#game-canvas{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+}
+
+.modal {
+    display: flex; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+
+    font-size: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    
+  }
+
+  h1 {
+    font-size: 100px;
+    font-family: 'Mr Dafoe', cursive;
+    margin-bottom: 0px;
+  }
+  p{
+      margin: 10px 0;
+  }
+
+  
+  /* Modal Content */
+  .modal-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        /* border: 1px solid #888; */
+        width: 50%;
+        min-height: 30%;
+        border-radius: 10px;
+        box-shadow:0 5px 5px rgba(0, 0, 0, .3) ;
+  }
+  
+  /* The Close Button */
+  .close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .menu{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+  }
+
+  #main-menu{
+  }
+
+  #over-menu{
+      display: none;
+  }
+
+  .btn{
+      padding: 8px 15px;
+      margin: 30px 0;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 28px;
+      font-weight: 700;
+
+      width: 100%;
+
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+  }

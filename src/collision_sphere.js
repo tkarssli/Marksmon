@@ -1,7 +1,4 @@
 import Collider from './collider'
-import utils from './utils'
-import * as CONST from './consts'
-
 
 class CollisionSphere extends Collider{
     constructor(x,y, r) {

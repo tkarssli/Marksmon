@@ -30,7 +30,7 @@ class Arrow {
         })
 
         const theta = Math.atan2 (this.dy,this.dx);
-       if (Math.abs(theta) < .45 && Math.round(this.y) >= innerHeight-CONST.FLOOR && this.dy > 0){
+       if (Math.abs(theta) < .45 && Math.round(this.y) >= CONST.FLOOR && this.dy > 0){
            if(this.dy > 0){
                this.dy = -this.dy/1.5
                if(this.dy < .1 && this.dy > -.1){
@@ -41,7 +41,7 @@ class Arrow {
             this.dx = this.dx/1.2
             
             
-        }else if( this.y >= innerHeight-CONST.FLOOR || hit){
+        }else if( this.y >= CONST.FLOOR || hit){
             this.setLanded()
         } else {
             this.dx += (this.dx > 0) ? -.01 : 0
@@ -126,7 +126,11 @@ class Arrow {
         ctx.save();
         ctx.translate(this.x, this.y );
         ctx.rotate(theta);
-        ctx.drawImage(arrowImage, 0, 0, w, h, 0, -h/2, w, h)
+        if(!this.landed){
+            ctx.drawImage(arrowImage, 0, 0, w, h, 0, -h/2, w, h)
+        } else {
+            ctx.drawImage(arrowImage, 0, 0, w-10, h, 0, -h/2, w, h)
+        }
         ctx.restore();
     }
 

@@ -1,5 +1,3 @@
-
-
 class Sprite {
     constructor(image,options){
         this.options = options;

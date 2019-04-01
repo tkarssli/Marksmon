@@ -2,14 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Canvas Template</title>
-    <style>
-        body {
-            margin: 0;
-        }
-    </style>
+    <title>Marksmon</title>
+    <link href="https://fonts.googleapis.com/css?family=Mr+Dafoe" rel="stylesheet">
+
+
 </head>
 <body>
-    <canvas></canvas>
+    <canvas id="game-canvas"></canvas>
+    <!-- Trigger/Open The Modal -->
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content">
+        <!-- <span class="close">&times;</span> -->
+        <div id="main-menu" class="menu">
+            <h1>Marksmon</h1>
+            <p>Click and drag to fire the arrow at targets downrange</p>
+            <p>Try to get the highest score possible</p>
+            <button id="mainMenuBtn" class="btn">Start Game</button>
+        </div>
+        <div id="over-menu" class="menu">
+            <h3>Nice Job!</h3>
+            <p>Final Score: <span id="final-score"></span></p>
+            <button id="overMenuBtn" class="btn">Restart Game</button>
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript" src="./js/canvas.bundle.js"></script>
 </body>
 </html>

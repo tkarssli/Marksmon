@@ -1,6 +1,3 @@
-import utils from './utils'
-import * as CONST from './consts'
-
 class Collider {
     constructor(x, y) {
         this.x = x
