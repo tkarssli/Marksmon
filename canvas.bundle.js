@@ -943,9 +943,6 @@ var overMenu = document.getElementById('over-menu');
 var mainMenuBtn = document.getElementById("mainMenuBtn");
 var overMenuBtn = document.getElementById("overMenuBtn");
 
-// Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close")[0];
-
 // Final Score
 var finalScoreElement = document.getElementById("final-score");
 
@@ -962,18 +959,6 @@ overMenuBtn.onclick = function () {
 
 var canvas = document.querySelector('#game-canvas');
 var c = canvas.getContext('2d');
-
-// When the user clicks on <span> (x), close the modal
-// span.onclick = function() {
-//   modal.style.display = "none";
-// }
-
-// When the user clicks anywhere outside of the modal, close it
-// window.onclick = function(event) {
-//   if (event.target == modal) {
-//     modal.style.display = "none";
-//   }
-// }
 
 var translated = {
     x: 0,
@@ -1007,9 +992,7 @@ var drag = {
 
 // GLOBAL VARS
 // Scenery
-var clouds = void 0;
 var trees = void 0;
-var bushes = void 0;
 // Session
 var arrows = void 0;
 var points = void 0;
@@ -1028,9 +1011,7 @@ var init = function init() {
     targets = [];
     arrows = [];
     points = 0;
-    clouds = [];
     trees = [];
-    bushes = [];
     resetHud();
 
     points = 0;
@@ -1080,11 +1061,10 @@ var init = function init() {
         w: 81,
         h: 180
     }];
-    Object.assi;
     for (var _i = 0; _i < 10; _i++) {
         var index = Math.floor(Math.random() * treesOptions.length);
         var to = Object.assign({}, treesOptions[index]);
-        to.x = Math.random() * CONST.WORLD_X;
+        to.x = Math.random() * CONST.WORLD_X / 2;
         to.y = CONST.FLOOR - to.h + 20;
         var tree = new _sprite2.default(image, to);
         trees.push(tree);
