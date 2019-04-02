@@ -36,10 +36,10 @@ class Target {
         ctx.fillStyle = "white"
         ctx.fillText(`${Math.round(this.x /100) }`, this.x, this.y+200)
 
-        ctx.beginPath()
-        ctx.rect(this.x, this.y, this.w, this.h);
-        ctx.stroke();
-        ctx.closePath();
+        // ctx.beginPath()
+        // ctx.rect(this.x, this.y, this.w, this.h);
+        // ctx.stroke();
+        // ctx.closePath();
 
     }
 

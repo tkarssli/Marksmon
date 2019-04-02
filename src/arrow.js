@@ -1,7 +1,6 @@
 import utils from './utils'
 import CollisionSphere from './collision_sphere'
 import * as CONST from './consts'
-import Particle from './particle'
 
 const arrowImage = new Image();
 arrowImage.src = './assets/arrow.png'
@@ -16,10 +15,13 @@ class Arrow {
         this.landed = false;
         this.hitValue = 0;
         this.hitBox = new CollisionSphere(0 ,0 , 5);
-        this.particles = [];
+
+        this.lastPoint = {x: x, y:y, ttl: CONST.ARROW_TRAIL_TTL};
+        this.trailPoints = [];
     }
 
-   update(ctx, targets){
+   update(c, targets){
+       this.trailPoints.push({x: this.x, y:this.y, ttl: CONST.ARROW_TRAIL_TTL})
        let hit = false;
        this.hitValue = 0;
         targets.forEach( target => {
@@ -50,8 +52,8 @@ class Arrow {
         
         this.x += this.dx
         this.y += this.dy;
-        this.draw(ctx);
-        this.hitBox.update(ctx)
+        this.draw(c);
+        this.hitBox.update(c)
     }
     
     setLanded(){
@@ -83,7 +85,7 @@ class Arrow {
 
     }
 
-    draw (ctx){
+    draw (c){
         let theta
         let h = 9
         let w = 69
@@ -94,28 +96,22 @@ class Arrow {
             theta = this.landed
         } 
 
-
-        // Arrow Particles
-        const vel = Math.sqrt(this.dx ** 2 + this.dy ** 2)
-        if(this.landed === false){
-            
-            for (let i = 0; i < 1; i++) {
-                let rand = Math.random();
-                const pm = (rand > .5) ? -1 : 1;
-                let x = this.x + rand*pm*5
-                rand = Math.random();
-                let y = this.y 
-                this.particles.push(new Particle(x,y, 1*rand))
-            }
-            
-        }
-        this.particles.forEach((particle, index) => {
-            if (particle.life <= 0){
-                this.particles = (this.particles.slice(0,index).concat(...this.particles.slice(index+1)))
-            }else{
-                particle.draw(ctx)
+        c.beginPath();
+        c.strokeStyle ="rgba(100,100,255,.3)";
+        c.lineWidth = 2;
+        const firstPoint = this.trailPoints[0];
+        c.moveTo(firstPoint.x, firstPoint.y);
+        this.trailPoints.forEach(point => {
+            c.lineTo(point.x, point.y);
+            point.ttl = point.ttl-1;
+            if(point.ttl <= 0){
+                this.trailPoints.shift();
             }
         })
+        c.lineTo(this.x, this.y);
+
+        c.stroke();
+        c.closePath();
 
 
         let x2 = this.x + w * Math.cos(theta)
@@ -123,15 +119,17 @@ class Arrow {
         this.hitBox.x = x2;
         this.hitBox.y = y2;
 
-        ctx.save();
-        ctx.translate(this.x, this.y );
-        ctx.rotate(theta);
+        c.save();
+        c.translate(this.x, this.y );
+        c.rotate(theta);
+
+
         if(!this.landed){
-            ctx.drawImage(arrowImage, 0, 0, w, h, 0, -h/2, w, h)
+            c.drawImage(arrowImage, 0, 0, w, h, 0, -h/2, w, h)
         } else {
-            ctx.drawImage(arrowImage, 0, 0, w-10, h, 0, -h/2, w, h)
+            c.drawImage(arrowImage, 0, 0, w-10, h, 0, -h/2, w, h)
         }
-        ctx.restore();
+        c.restore();
     }
 
 }

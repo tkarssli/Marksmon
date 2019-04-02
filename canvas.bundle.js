@@ -730,15 +730,9 @@ var _consts = __webpack_require__(/*! ./consts */ "./src/consts.js");
 
 var CONST = _interopRequireWildcard(_consts);
 
-var _particle = __webpack_require__(/*! ./particle */ "./src/particle.js");
-
-var _particle2 = _interopRequireDefault(_particle);
-
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -757,14 +751,17 @@ var Arrow = function () {
         this.landed = false;
         this.hitValue = 0;
         this.hitBox = new _collision_sphere2.default(0, 0, 5);
-        this.particles = [];
+
+        this.lastPoint = { x: x, y: y, ttl: CONST.ARROW_TRAIL_TTL };
+        this.trailPoints = [];
     }
 
     _createClass(Arrow, [{
         key: 'update',
-        value: function update(ctx, targets) {
+        value: function update(c, targets) {
             var _this = this;
 
+            this.trailPoints.push({ x: this.x, y: this.y, ttl: CONST.ARROW_TRAIL_TTL });
             var hit = false;
             this.hitValue = 0;
             targets.forEach(function (target) {
@@ -793,8 +790,8 @@ var Arrow = function () {
 
             this.x += this.dx;
             this.y += this.dy;
-            this.draw(ctx);
-            this.hitBox.update(ctx);
+            this.draw(c);
+            this.hitBox.update(c);
         }
     }, {
         key: 'setLanded',
@@ -835,7 +832,7 @@ var Arrow = function () {
         }
     }, {
         key: 'draw',
-        value: function draw(ctx) {
+        value: function draw(c) {
             var _this2 = this;
 
             var theta = void 0;
@@ -848,43 +845,38 @@ var Arrow = function () {
                 theta = this.landed;
             }
 
-            // Arrow Particles
-            var vel = Math.sqrt(Math.pow(this.dx, 2) + Math.pow(this.dy, 2));
-            if (this.landed === false) {
-
-                for (var i = 0; i < 1; i++) {
-                    var rand = Math.random();
-                    var pm = rand > .5 ? -1 : 1;
-                    var x = this.x + rand * pm * 5;
-                    rand = Math.random();
-                    var y = this.y;
-                    this.particles.push(new _particle2.default(x, y, 1 * rand));
-                }
-            }
-            this.particles.forEach(function (particle, index) {
-                if (particle.life <= 0) {
-                    var _particles$slice;
-
-                    _this2.particles = (_particles$slice = _this2.particles.slice(0, index)).concat.apply(_particles$slice, _toConsumableArray(_this2.particles.slice(index + 1)));
-                } else {
-                    particle.draw(ctx);
+            c.beginPath();
+            c.strokeStyle = "rgba(100,100,255,.3)";
+            c.lineWidth = 2;
+            var firstPoint = this.trailPoints[0];
+            c.moveTo(firstPoint.x, firstPoint.y);
+            this.trailPoints.forEach(function (point) {
+                c.lineTo(point.x, point.y);
+                point.ttl = point.ttl - 1;
+                if (point.ttl <= 0) {
+                    _this2.trailPoints.shift();
                 }
             });
+            c.lineTo(this.x, this.y);
+
+            c.stroke();
+            c.closePath();
 
             var x2 = this.x + w * Math.cos(theta);
             var y2 = this.y + w * Math.sin(theta);
             this.hitBox.x = x2;
             this.hitBox.y = y2;
 
-            ctx.save();
-            ctx.translate(this.x, this.y);
-            ctx.rotate(theta);
+            c.save();
+            c.translate(this.x, this.y);
+            c.rotate(theta);
+
             if (!this.landed) {
-                ctx.drawImage(arrowImage, 0, 0, w, h, 0, -h / 2, w, h);
+                c.drawImage(arrowImage, 0, 0, w, h, 0, -h / 2, w, h);
             } else {
-                ctx.drawImage(arrowImage, 0, 0, w - 10, h, 0, -h / 2, w, h);
+                c.drawImage(arrowImage, 0, 0, w - 10, h, 0, -h / 2, w, h);
             }
-            ctx.restore();
+            c.restore();
         }
     }]);
 
@@ -1237,7 +1229,6 @@ var createMountainRange = function createMountainRange(mountainAmount, height, c
     for (var i = 0; i < mountainAmount; i++) {
         var mountainWidth = innerWidth / mountainAmount;
         var x = hudX - (1000 + hudX / (100 / (i + 1)));
-        // console.log(hudX / CONST.WORLD_X)
         c.beginPath();
         c.moveTo(x + i * mountainWidth, CONST.FLOOR);
         c.lineTo(x + i * mountainWidth + mountainWidth, CONST.FLOOR);
@@ -1532,71 +1523,8 @@ var VECTOR_LENGTH = exports.VECTOR_LENGTH = 200;
 var VEL_DIV = exports.VEL_DIV = 1.5;
 var GRAVITY = exports.GRAVITY = .3;
 var PARTICLE_LIFE = exports.PARTICLE_LIFE = 1000;
-var NUM_ARROWS = exports.NUM_ARROWS = 1;
-
-/***/ }),
-
-/***/ "./src/particle.js":
-/*!*************************!*\
-  !*** ./src/particle.js ***!
-  \*************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _utils = __webpack_require__(/*! ./utils */ "./src/utils.js");
-
-var _utils2 = _interopRequireDefault(_utils);
-
-var _consts = __webpack_require__(/*! ./consts */ "./src/consts.js");
-
-var CONST = _interopRequireWildcard(_consts);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Particle = function () {
-    function Particle(x, y, r) {
-        _classCallCheck(this, Particle);
-
-        this.r = r;
-        this.x = x;
-        this.y = y;
-        this.start = Date.now();
-        this.life = CONST.PARTICLE_LIFE;
-    }
-
-    _createClass(Particle, [{
-        key: 'draw',
-        value: function draw(ctx) {
-            var newStart = Date.now();
-            this.life -= newStart - this.start;
-            this.start = newStart;
-
-            var rand = Math.random();
-            this.y = this.y - 1;
-            this.r = this.r + .2 * rand;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
-            ctx.lineWidth = 1;
-            ctx.fillStyle = 'rgba(100,100,100,' + this.life / CONST.PARTICLE_LIFE + ')';
-            ctx.fill();
-
-            ctx.closePath();
-        }
-    }]);
-
-    return Particle;
-}();
-
-module.exports = Particle;
+var NUM_ARROWS = exports.NUM_ARROWS = 10;
+var ARROW_TRAIL_TTL = exports.ARROW_TRAIL_TTL = 15;
 
 /***/ }),
 
@@ -1741,10 +1669,10 @@ var Target = function () {
             ctx.fillStyle = "white";
             ctx.fillText('' + Math.round(this.x / 100), this.x, this.y + 200);
 
-            ctx.beginPath();
-            ctx.rect(this.x, this.y, this.w, this.h);
-            ctx.stroke();
-            ctx.closePath();
+            // ctx.beginPath()
+            // ctx.rect(this.x, this.y, this.w, this.h);
+            // ctx.stroke();
+            // ctx.closePath();
         }
     }]);
 

@@ -318,7 +318,6 @@ const createMountainRange = (mountainAmount, height, color) => {
     for (let i = 0; i < mountainAmount; i++) {
         const mountainWidth = innerWidth / mountainAmount;
         const x = hudX - (1000+ hudX/(100/(i+1)));
-        // console.log(hudX / CONST.WORLD_X)
         c.beginPath();
         c.moveTo(x + i * mountainWidth, CONST.FLOOR);
         c.lineTo(x + i * mountainWidth + mountainWidth, CONST.FLOOR);
