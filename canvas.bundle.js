@@ -1025,8 +1025,8 @@ var init = function init() {
         ranges.push(3000 * i + 3000 * rand);
     }
     targets.push(new _target2.default(ranges[0], 0, 100));
-    targets.push(new _target2.default(ranges[1], 0, 500));
-    targets.push(new _target2.default(ranges[2], 0, 1000));
+    targets.push(new _target2.default(ranges[1], 0, 200));
+    targets.push(new _target2.default(ranges[2], 0, 500));
     targets.push(new _target2.default(ranges[3], 0, 1000));
 
     // Scenery Sprites
@@ -1263,7 +1263,7 @@ function animate() {
 
     ranges.forEach(function (range, i) {
         var y = (i + 1) * 50 + 150;
-        c.fillText(Math.round(range / 100) + ' M', 200, y);
+        c.fillText(Math.round(range / 100) + ' M, Value: ' + targets[i].value, 100, y);
     });
 
     if (over) {

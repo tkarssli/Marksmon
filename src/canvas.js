@@ -103,8 +103,8 @@ const init = () => {
         ranges.push((3000 * i) + (3000 * rand))
     }
     targets.push(new Target(ranges[0], 0, 100))
-    targets.push(new Target(ranges[1], 0, 500))
-    targets.push(new Target(ranges[2], 0, 1000))
+    targets.push(new Target(ranges[1], 0, 200))
+    targets.push(new Target(ranges[2], 0, 500))
     targets.push(new Target(ranges[3], 0, 1000))
 
 
@@ -349,7 +349,7 @@ function animate() {
 
     ranges.forEach((range, i) => {
         const y = ((i + 1) * 50) + 150
-        c.fillText(`${Math.round(range/100)} M`, 200, y)
+        c.fillText(`${Math.round(range/100)} M, Value: ${targets[i].value}`, 100, y)
     })
 
     if (over) {
