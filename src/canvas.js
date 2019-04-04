@@ -99,13 +99,15 @@ const init = () => {
     // Targets
     const rand = Math.random()
     ranges = [];
-    for (let i = 1; i < 5; i++) {
-        ranges.push((3000 * i) + (3000 * rand))
+    for (let i = 1; i < 7; i++) {
+        ranges.push(3000 + (3000 * i) + (3000 * rand))
     }
     targets.push(new Target(ranges[0], 0, 100))
     targets.push(new Target(ranges[1], 0, 200))
     targets.push(new Target(ranges[2], 0, 500))
-    targets.push(new Target(ranges[3], 0, 1000))
+    targets.push(new Target(ranges[3], 0, 750))
+    targets.push(new Target(ranges[3], 0, 900))
+    targets.push(new Target(ranges[3], 0, 1200))
 
 
     // Scenery Sprites
@@ -205,8 +207,6 @@ addEventListener('resize', () => {
     canvas.width = innerWidth
     canvas.height = innerHeight
 })
-
-
 
 
 let myImage = new Image();
