@@ -14,6 +14,7 @@ This game is inspired from a flash game classic called bowman which shares a sim
 * The player gets a finite number of arrows, the game ends when they have all been fired.
 
 ### Gameplay
+![Marksmon Gameplay](https://res.cloudinary.com/tkarssli/image/upload/v1554406161/marksmon.gif)
 
 #### Arrow physics and hit detection
 ```js
