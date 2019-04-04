@@ -226,61 +226,56 @@ function drawBow(x, y) {
 }
 
 const mouseDrag = c => {
-    let x = mouse.x;
-    let y = mouse.y;
-    let dist = utils.distance(drag.x, drag.y, x, y);
+  let x = mouse.x;
+  let y = mouse.y;
+  let dist = utils.distance(drag.x, drag.y, x, y);
 
-    let theta = utils.angle(drag.x, drag.y, x, y)
-    let degs = utils.angle(x, y, drag.x, drag.y);
-    degs *= -180 / Math.PI
-    if (dist > drag.max) {
-        // Math.pow(drag.max, 2)
-        x = drag.x + drag.max * Math.cos(theta)
-        y = drag.y + drag.max * Math.sin(theta)
-        dist = drag.max
-    }
-    let vel = (dist / drag.max) * 100
-    c.beginPath()
-    c.moveTo(drag.x, drag.y)
-    c.lineTo(x, y)
-    c.strokeStyle = "black"
-    c.stroke()
-    c.closePath();
-    c.fillStyle = "black"
-    c.fillText(Math.round(100 * degs) / 100, drag.x, drag.y)
-    c.fillText(Math.round(100 * vel) / 100, x, y)
+  let theta = utils.angle(drag.x, drag.y, x, y)
+  let degs = utils.angle(x, y, drag.x, drag.y);
+  degs *= -180 / Math.PI
+  if (dist > drag.max) {
+    x = drag.x + drag.max * Math.cos(theta)
+    y = drag.y + drag.max * Math.sin(theta)
+    dist = drag.max
+  }
+  let vel = (dist / drag.max) * 100
+  c.beginPath()
+  c.moveTo(drag.x, drag.y)
+  c.lineTo(x, y)
+  c.strokeStyle = "black"
+  c.stroke()
+  c.closePath();
+  c.fillStyle = "black"
+  c.fillText(Math.round(100 * degs) / 100, drag.x, drag.y)
+  c.fillText(Math.round(100 * vel) / 100, x, y)
 
-    drag.degs = degs
-    drag.vel = vel
-    drag.theta = theta
-
+  drag.degs = degs
+  drag.vel = vel
+  drag.theta = theta
 }
 
 class Menu {
+  static handleClick(x, y) {
+    if (x > innerWidth / 2 - 150 && x < innerWidth / 2 - 150 + 300 &&
+      y >= innerHeight / 2 - 60 && y < innerHeight / 2) {
 
-    static handleClick(x, y) {
-        if (x > innerWidth / 2 - 150 && x < innerWidth / 2 - 150 + 300 &&
-            y >= innerHeight / 2 - 60 && y < innerHeight / 2) {
-
-            setTimeout(() => {
-                if (showMenu) {
-                    showMenu = false;
-                } else if (over) {
-                    over = false;
-                    init();
-
-                }
-            }, 200)
-
+      setTimeout(() => {
+        if (showMenu) {
+          showMenu = false;
+        } else if (over) {
+          over = false;
+          init();
         }
+      }, 200)
     }
+  }
     
-    static over(c) {
-        finalScoreElement.innerHTML = points;
-        mainMenu.style.display = "none";
-        overMenu.style.display = "flex";
-        modal.style.display = "flex";
-    }
+  static over(c) {
+    finalScoreElement.innerHTML = points;
+    mainMenu.style.display = "none";
+    overMenu.style.display = "flex";
+    modal.style.display = "flex";
+  }
 }
 
 const resetHud = () => {
@@ -292,24 +287,23 @@ const resetHud = () => {
 }
 
 const createMountainRange = (mountainAmount, height, color) => {
-    for (let i = 0; i < mountainAmount; i++) {
-        const mountainWidth = innerWidth / mountainAmount;
-        const x = hudX - (1000+ hudX/(100/(i+1)));
-        c.beginPath();
-        c.moveTo(x + i * mountainWidth, CONST.FLOOR);
-        c.lineTo(x + i * mountainWidth + mountainWidth, CONST.FLOOR);
-        c.lineTo(x + i * mountainWidth + mountainWidth / 2, CONST.FLOOR - height)
-        c.lineTo(x + i * mountainWidth, CONST.FLOOR)
-        const backgroundGradient = c.createLinearGradient(0, 0, 0, innerHeight)
-        backgroundGradient.addColorStop(1, color)
-        backgroundGradient.addColorStop(0, 'rgba(255,255,255, 1)')
-        c.fillStyle = backgroundGradient;
-        // c.stroke();
-        c.fill()
-        c.closePath();
-    }
+  for (let i = 0; i < mountainAmount; i++) {
+    const mountainWidth = innerWidth / mountainAmount;
+    const x = hudX - (1000+ hudX/(100/(i+1)));
+    c.beginPath();
+    c.moveTo(x + i * mountainWidth, CONST.FLOOR);
+    c.lineTo(x + i * mountainWidth + mountainWidth, CONST.FLOOR);
+    c.lineTo(x + i * mountainWidth + mountainWidth / 2, CONST.FLOOR - height)
+    c.lineTo(x + i * mountainWidth, CONST.FLOOR)
+    const backgroundGradient = c.createLinearGradient(0, 0, 0, innerHeight)
+    backgroundGradient.addColorStop(1, color)
+    backgroundGradient.addColorStop(0, 'rgba(255,255,255, 1)')
+    c.fillStyle = backgroundGradient;
+    // c.stroke();
+    c.fill()
+    c.closePath();
+  }
 }
-
 
 let showMenu = true;
 let over = false;

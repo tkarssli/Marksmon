@@ -24,6 +24,7 @@ class Arrow {
        this.trailPoints.push({x: this.x, y:this.y, ttl: CONST.ARROW_TRAIL_TTL})
        let hit = false;
        this.hitValue = 0;
+
         targets.forEach( target => {
             if(this.targetHit(target)){
                 hit = true;
@@ -32,17 +33,14 @@ class Arrow {
         })
 
         const theta = Math.atan2 (this.dy,this.dx);
-       if (Math.abs(theta) < .45 && Math.round(this.y) >= CONST.FLOOR && this.dy > 0){
-           if(this.dy > 0){
-               this.dy = -this.dy/1.5
-               if(this.dy < .1 && this.dy > -.1){
-                   this.dy = 0
+        if (Math.abs(theta) < .45 && Math.round(this.y) >= CONST.FLOOR && this.dy > 0){
+            if(this.dy > 0){
+                this.dy = -this.dy/1.5
+                if(this.dy < .1 && this.dy > -.1){
+                    this.dy = 0
                 }
             }
-            
             this.dx = this.dx/1.2
-            
-            
         }else if( this.y >= CONST.FLOOR || hit){
             this.setLanded()
         } else {
