@@ -1,5 +1,5 @@
 # Marksmon
-A game where a little guy shoots arrows at targets
+A game where a magic bow shoots arrows at targets
 
 ## Overview
 Marksmon is a game where the objective is to drag veloctiy vector for a little man to shoot his arrow. The arrow is sent flying down the playfield and either hits or misses several targets downfield. The player has a finite number of arrows and after they have all been fired the player gets a final score of all their shots and misses. 
